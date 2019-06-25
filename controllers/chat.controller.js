@@ -16,6 +16,6 @@ const app = express();
 
 
 exports.index = function (req, res) {
-    res.render('index/index');
+    res.render('chat/index');
 };
 

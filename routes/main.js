@@ -8,7 +8,7 @@ module.exports = (app) => {
     .use(bodyParser.json())
     .use(bodyParser.urlencoded({ extended: false }))
     // .use(cookieParser(cookieSecret))
-    .use('/', require('./indexRouter'))
+    .use('/chat', require('./chatRouter'))
 
 
     // Adminator
