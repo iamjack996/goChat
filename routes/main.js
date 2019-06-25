@@ -9,6 +9,7 @@ module.exports = (app) => {
     .use(bodyParser.urlencoded({ extended: false }))
     // .use(cookieParser(cookieSecret))
     .use('/chat', require('./chatRouter'))
+    .use('/auth', require('./authRouter'))
 
 
     // Adminator
