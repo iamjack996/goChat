@@ -20,3 +20,9 @@ app.listen(3000, () => { // 掛上3000 port
 // Route
 const router = require('./routes/main')
 router(app)
+
+// For Form Request Use BodyParser
+const bodyParser = require('body-parser');
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
