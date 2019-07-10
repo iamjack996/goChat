@@ -1,7 +1,7 @@
 const express = require('express')
-const app = express()
 const bcrypt = require('bcrypt')
 const saltRounds = 10
+const app = express();
 
 const DB = require('../models/DB_config')
 const Users = DB.ref('/User')
@@ -21,19 +21,23 @@ exports.login = function (req, res) {
             let userInfo = {}
             snapshot.forEach(child => userInfo = child.val())
 
-            if (!userInfo.email) res.render('auth/index')
-
-            let passwordCompare = await bcrypt.compare(password, userInfo.password)
-            if (!passwordCompare) res.render('auth/index')
-
-            res.send(req.body)
-        }) 
+            if (!userInfo.email) {
+                // req.flash('info', '無此帳號')
+                res.render('auth/index', { msg: '無此帳號' })
+            } else {
+                let passwordCompare = await bcrypt.compareSync(password, userInfo.password)
+                if (!passwordCompare) {
+                    // req.flash('info', '密碼錯誤')
+                    res.render('auth/index', { msg: '密碼錯誤' })
+                }
+                res.redirect('/chat')
+            }
+        })
 };
 
 exports.test = function (req, res) {
     res.render('test')
 };
-
 
 
 
