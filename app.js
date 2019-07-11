@@ -21,7 +21,7 @@ app.use(flash())
 // const MemoryStore = session.MemoryStore;
 app.use(session({
     secret: 'recommand128BytesRandomStringrecommand128BytesRandomStringrecommand', // 建议使用 128 个字符的随机字符串
-    cookie: { maxAge: 60 * 1000 * 30 },
+    cookie: { maxAge: 60 * 1000 * 60 },
     resave: false,
     saveUninitialized: true,
     // store: new MemoryStore()
@@ -55,7 +55,7 @@ chat.on('connection', function (socket) {
     socket.on('join-self', function (user) {
         let { email } = user
         socket.join(email, () => {
-            console.log(socket.rooms)
+            // console.log(socket.rooms)
         })
         console.log(email + ' >>> join self.')
     })

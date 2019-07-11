@@ -7,3 +7,4 @@ const chatController = require('../controllers/chat.controller');
 router.get('/', chatController.index);
 router.get('/getLoginUser', chatController.getLoginUser);
 
+router.post('/addFriend', chatController.addFriend);

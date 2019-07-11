@@ -37,10 +37,9 @@ exports.login = function (req, res) {
 
                     delete userInfo.password
                     req.session.loginUser = userInfo
-                    if (req.session.loginUser) {
-                        consola.success(req.session.loginUser)
-                    }
-
+                    // if (req.session.loginUser) {
+                    //     consola.success(req.session.loginUser)
+                    // }
                     res.redirect('/chat')
                 }
             } catch (e) {
