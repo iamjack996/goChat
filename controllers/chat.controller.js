@@ -1,6 +1,9 @@
 const express = require('express');
 const app = express();
 
+const DB = require('../models/DB_config')
+const Users = DB.ref('/User')
+
 // const admin = require("firebase-admin");
 // const serviceAccount = require("../config/serviceAccountKey.json");
 // admin.initializeApp({
@@ -16,6 +19,19 @@ const app = express();
 
 
 exports.index = function (req, res) {
-    res.render('chat/index');
+    const loginUser = req.session.loginUser
+
+    Users
+        .once('value', async snapshot => {
+            snapshot.forEach(user => {
+                console.log(user.val())
+            })
+    })
+    res.render('chat/index', { loginUser });
+};
+
+exports.getLoginUser = function (req, res) {
+    const loginUser = req.session.loginUser
+    res.json({ loginUser })
 };
 
