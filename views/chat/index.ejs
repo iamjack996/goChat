@@ -817,11 +817,28 @@
     <style type="text/css">
 
     </style>
+    
 </head>
 
 <body>
 
     <div id="frame">
+
+        <% if ( success ) { %>
+            <div class="register-link m-t-15 text-center">
+                <br>
+                <h3 style="color:green"><%= success %></h3>
+                <br>
+            </div>
+        <% } %>
+        <% if ( error ) { %>
+            <div class="register-link m-t-15 text-center">
+                <br>
+                <h3 style="color:red"><%= error %></h3>
+                <br>
+            </div>
+        <% } %>
+
         <%- include('sidebar.ejs') -%>
         <div class="content">
             <div class="contact-profile">
