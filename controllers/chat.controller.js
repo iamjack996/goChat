@@ -21,7 +21,7 @@ exports.index = function (req, res) {
                 // Object.values(friendList).map(user => {
                 //     console.log(user)
                 // })
-                res.render('chat/index', { loginUser, friendList })
+                res.render('chat/index', { loginUser, friendList, friendMail: '' })
             })
         })
 }
@@ -40,8 +40,8 @@ exports.chat = function (req, res) {
             snapshot.forEach(loginUser => {
                 // console.log(loginUser.child('friendList').val())
                 let friendList = loginUser.child('friendList').val()
-                
-                res.render('chat/index', { loginUser, friendList })
+
+                res.render('chat/index', { loginUser, friendList, friendMail })
             })
         })
 }

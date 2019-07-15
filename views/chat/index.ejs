@@ -701,6 +701,15 @@
             margin: 6px 8px 0 0;
         }
 
+        .host {
+            margin: 6px 8px 0 0;
+        }
+
+        .guest {
+            float: right;
+            margin: 6px 0 0 8px;
+        }
+
         #frame .content .messages ul li.sent p {
             background: #435f7a;
             color: #f5f5f5;
@@ -817,12 +826,11 @@
     <style type="text/css">
 
     </style>
-    
 </head>
 
 <body>
 
-    <div id="frame">
+    <div id="frame" class="v_table">
 
         <% if ( success ) { %>
             <div class="register-link m-t-15 text-center">
@@ -851,7 +859,7 @@
                 </div>
             </div>
             <div class="messages">
-                <ul>
+                <!-- <ul>
                     <li class="sent">
                         <img src="http://emilcarlsson.se/assets/mikeross.png" alt="" />
                         <p>How the hell am I supposed to get a jury to believe you when I am not even sure that I do?!
@@ -861,18 +869,34 @@
                         <img src="http://emilcarlsson.se/assets/harveyspecter.png" alt="" />
                         <p>When you're backed against the wall, break the god damn thing down.</p>
                     </li>
+                </ul> -->
+
+                <ul id="content">
+                    <li class="sent">
+                        <!-- <img src="http://emilcarlsson.se/assets/mikeross.png" alt="" /> -->
+                        <span class="host">testName</span>
+                        <p>How the hell am I supposed to get a jury to believe you when I am not even sure that I do?!
+                        </p>
+                    </li>
+                    <li class="replies">
+                        <span class="guest">testName2</span>
+                        <!-- <img src="http://emilcarlsson.se/assets/harveyspecter.png" alt="" /> -->
+                        <p>When you're backed against the wall, break the god damn thing down.</p>
+                    </li>
                 </ul>
             </div>
             <div class="message-input">
                 <div class="wrap">
                     <input type="text" id="chatInput" placeholder="Write your message..." />
                     <i class="fa fa-paperclip attachment" aria-hidden="true"></i>
-                    <button class="submit"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
+                    <button id="chat-btn" class="submit"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
                 </div>
             </div>
         </div>
     </div>
+    
     <script src="/socket.io/socket.io.js"></script>
+    <script src="/public/js/vue.js"></script>
     <script
         src='//production-assets.codepen.io/assets/common/stopExecutionOnTimeout-b2a7b3fe212eaa732349046d8416e00a9dec26eb7fd347590fbced3ab38af52e.js'></script>
     <script src='https://code.jquery.com/jquery-2.2.4.min.js'></script>
@@ -910,6 +934,48 @@
             $("#status-options").removeClass("active");
         });
 
+//# sourceURL=pen.js
+    </script>
+    <script type="text/javascript">
+        var vm = new Vue({
+            el: '.v_table',
+            data: {
+                loginUser: null,
+                friendMail: "<%= friendMail %>"
+            }
+        })
+        const socket = io('/chat')
+
+        $(document).ready(function () {
+            $.ajax({
+                url: '/chat/getLoginUser',
+                type: 'get',
+                dataType: 'json',
+                success: data => {
+                    vm.loginUser = data.loginUser
+                    console.log(vm.loginUser)
+                    socket.on("connect", () => {
+                        console.log('連線中')
+                        socket.emit("join-self", vm.loginUser)
+                    })
+                }
+            })
+
+            if ( vm.friendMail ) {
+                socket.emit("join-chat", vm.friendMail)
+            }
+
+        })
+
+        $('.submit').click(function () {
+            newMessage();
+        });
+        $(window).on('keydown', function (e) {
+            if (e.which == 13) {
+                newMessage();
+                return false;
+            }
+        });
         function newMessage() {
             message = $(".message-input input").val();
             if ($.trim(message) == '') {
@@ -919,40 +985,14 @@
             $('.message-input input').val(null);
             $('.contact.active .preview').html('<span>You: </span>' + message);
             $(".messages").animate({ scrollTop: $(document).height() }, "fast");
+
+            console.log(vm.loginUser)
+            // sendData = {
+            //     msg: message
+                
+            // }
+            // socket.emit("send", sendData);
         };
-
-        $('.submit').click(function () {
-            newMessage();
-        });
-
-        $(window).on('keydown', function (e) {
-            if (e.which == 13) {
-                newMessage();
-                return false;
-            }
-        });
-//# sourceURL=pen.js
-    </script>
-    <script type="text/javascript">
-        const socket = io('/chat')
-
-        $(document).ready(function () {
-            $.ajax({
-                url: 'chat/getLoginUser',
-                type: 'get',
-                dataType: 'json',
-                success: data => {
-                    let loginUser = data.loginUser
-                    console.log(loginUser)
-                    socket.on("connect", () => {
-                        console.log('連線中')
-                        socket.emit("join-self", loginUser)
-                    })
-                }
-            })
-        })
-
-
 
         $('#addFriendBtn').click(() => {
             $('#addFriendRow').toggle()

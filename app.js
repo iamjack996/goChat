@@ -60,7 +60,14 @@ chat.on('connection', function (socket) {
         console.log(email + ' >>> join self.')
     })
 
-    
+    socket.on('join-chat', function (email) {
+        console.log(' >>> join to :' + email)
+        socket.join(email, () => {
+            console.log(socket.rooms)
+        })
+    })
+
+
 
 })
 
