@@ -19,37 +19,50 @@ exports.auth = async function (req, res) {
 
     // let a = 1
 
-    // let echo = async function() {
-    //     setTimeout(() => {
-    //         a = 33
-    //     }, 3000)
-    //     return a
+    // function echo() {
+    //     return new Promise(resolve => {
+    //         setTimeout(() => {
+    //             a += 49
+    //             resolve(a)
+    //         }, 3000)
+    //     });
     // }
-
-    // echo().then(function(data){
+    // echo().then(function (data) {
     //     console.log(data)
     // })
 
-    function resolveAfter2Seconds(x) {
-        return new Promise(resolve => {
-            setTimeout(() => {
-                resolve(x+=100);
-                // x+=100
-            }, 2000);
-            // return x
-        });
+
+    let a = 1
+
+    async function echo() {
+        setTimeout(() => {
+            a += 49
+        }, 3000)
+        return await a
     }
+    
+    console.log(echo())
 
 
-    async function add1(x) {
-        const a = await resolveAfter2Seconds(20);
-        const b = await resolveAfter2Seconds(30);
-        return x + a + b;
-    }
+    // function resolveAfter2Seconds(x) {
+    //     return new Promise(resolve => {
+    //         setTimeout(() => {
+    //             resolve(x+=100);
+    //             // x+=100
+    //         }, 2000);
+    //         // return x
+    //     });
+    // }
 
-    add1(10).then(v => {
-        console.log(v);  // prints 60 after 4 seconds.
-    });
+    // async function add1(x) {
+    //     const a = await resolveAfter2Seconds(20);
+    //     const b = await resolveAfter2Seconds(30);
+    //     return x + a + b;
+    // }
+
+    // add1(10).then(v => {
+    //     console.log(v);  // prints 60 after 4 seconds.
+    // });
 
 
 

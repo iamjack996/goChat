@@ -1,10 +1,19 @@
-const express = require('express');
-const router = express.Router();
-module.exports = router;
+const express = require('express')
+const router = express.Router()
+module.exports = router
 
-const chatController = require('../controllers/chat.controller');
+const chatController = require('../controllers/chat.controller')
 
-router.get('/', chatController.index);
-router.get('/getLoginUser', chatController.getLoginUser);
+function checkUserAuth(req, res, next) {
+    const logingUser = req.session.loginUser
+    if (!logingUser) { res.redirect('../auth') }
+    next()
+}
 
-router.post('/addFriend', chatController.addFriend);
+router.use(checkUserAuth)
+
+router.get('/', chatController.index)
+router.get('/:id', chatController.chat);
+router.get('/getLoginUser', chatController.getLoginUser)
+
+router.post('/addFriend', chatController.addFriend)
