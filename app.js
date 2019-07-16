@@ -44,6 +44,10 @@ const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// DB (Firebase)
+const DB = require('./models/DB_config')
+const ChatRoom = DB.ref('/ChatRoom')
+
 // Socket.io
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
@@ -53,18 +57,26 @@ chat.on('connection', function (socket) {
     console.log('Socket Connected!')
     socket.on('join-self', function (user) {
         let { email } = user
-        console.log(email)
+        // console.log(email)
         socket.join(email, () => {
             // console.log(socket.rooms)
         })
-        console.log(email + ' >>> join self.')
+        // console.log(email + ' >>> join self.')
     })
 
     socket.on('join-chat', function (email) {
-        console.log(' >>> join to :' + email)
+        // console.log(' >>> join to :' + email)
         socket.join(email, () => {
-            console.log(socket.rooms)
+            // console.log(socket.rooms)
         })
+    })
+
+    socket.on('send', function (sendData) {
+        consola.success(sendData)
+        socket.to(sendData.key).emit("getMsg", sendData)
+
+
+        
     })
 
 

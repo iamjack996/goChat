@@ -9,12 +9,19 @@ const Users = DB.ref('/User')
 
 exports.auth = async function (req, res) {
 
-    // let a = 1
-    // setTimeout(() => {
-    //     a = 33
-    // }, 3000)
+    var a = 1
 
-    // console.log(await a)
+    let tt = async () => {
+        await setTimeout(() => {
+            a += 33
+            return a
+            // console.log(a)
+        }, 3000)
+    }
+
+    tt()
+
+    console.log(a)
 
 
     // let a = 1
@@ -32,16 +39,20 @@ exports.auth = async function (req, res) {
     // })
 
 
-    let a = 1
+    // let a = 1
 
-    async function echo() {
-        setTimeout(() => {
-            a += 49
-        }, 3000)
-        return await a
-    }
-    
-    console.log(echo())
+    // async function echo() {
+    //     setTimeout(() => {
+    //         a += 49
+    //     }, 3000)
+    //     return await a
+    //     // console.log(await a)
+    // }
+
+    // echo().then((data) => {
+    //     console.log(data)
+    // })
+
 
 
     // function resolveAfter2Seconds(x) {
@@ -78,7 +89,10 @@ exports.login = function (req, res) {
         .limitToFirst(1)
         .once('value', async snapshot => {
             let userInfo = {}
-            snapshot.forEach(child => userInfo = child.val())
+            snapshot.forEach(child => {
+                userInfo = child.val()
+                userInfo.userKey = child.key
+            })
 
             try {
                 if (!userInfo.email) {
@@ -95,9 +109,7 @@ exports.login = function (req, res) {
 
                     delete userInfo.password
                     req.session.loginUser = userInfo
-                    // if (req.session.loginUser) {
-                    //     consola.success(req.session.loginUser)
-                    // }
+                    // consola.success(req.session.loginUser)
                     res.redirect('/chat')
                 }
             } catch (e) {

@@ -6,6 +6,8 @@
     <!-- This file has been downloaded from Bootsnipp.com. Enjoy! -->
     <title>goChat - title</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="https://i.imgur.com/QRAUqs9.png"> <!-- 瀏覽器icon -->
+    
     <link href="/public/css/bootstrap.min.css" rel="stylesheet">
     <script src="/public/js/jquery.min.js"></script>
     <script src="/public/js/bootstrap.min.js"></script>
@@ -851,14 +853,14 @@
         <div class="content">
             <div class="contact-profile">
                 <img src="http://emilcarlsson.se/assets/harveyspecter.png" alt="" />
-                <p>Harvey Specter</p>
+                <p>{{ friendMail }}</p>
                 <div class="social-media">
-                    <i class="fa fa-facebook" aria-hidden="true"></i>
-                    <i class="fa fa-twitter" aria-hidden="true"></i>
-                    <i class="fa fa-instagram" aria-hidden="true"></i>
+                    <!-- <i class="fa fa-facebook" aria-hidden="true"></i> -->
+                    <a href="./auth">Logout<i class="fa fa-twitter" aria-hidden="true"></i></a>
+                    <!-- <i class="fa fa-instagram" aria-hidden="true"></i> -->
                 </div>
             </div>
-            <div class="messages">
+            <div class="messages" v-if="friendMail">
                 <!-- <ul>
                     <li class="sent">
                         <img src="http://emilcarlsson.se/assets/mikeross.png" alt="" />
@@ -884,6 +886,9 @@
                         <p>When you're backed against the wall, break the god damn thing down.</p>
                     </li>
                 </ul>
+            </div>
+            <div v-else>
+                <h3>你已經登入，可以開始點擊好友聊天 ...</h3>
             </div>
             <div class="message-input">
                 <div class="wrap">
@@ -941,7 +946,8 @@
             el: '.v_table',
             data: {
                 loginUser: null,
-                friendMail: "<%= friendMail %>"
+                friendMail: "<%= friendInfo.email %>",
+                roomKey: "<%= roomKey %>"
             }
         })
         const socket = io('/chat')
@@ -961,10 +967,9 @@
                 }
             })
 
-            if ( vm.friendMail ) {
-                socket.emit("join-chat", vm.friendMail)
+            if ( vm.roomKey ) {
+                socket.emit("join-chat", vm.roomKey)
             }
-
         })
 
         $('.submit').click(function () {
@@ -986,12 +991,13 @@
             $('.contact.active .preview').html('<span>You: </span>' + message);
             $(".messages").animate({ scrollTop: $(document).height() }, "fast");
 
-            console.log(vm.loginUser)
-            // sendData = {
-            //     msg: message
-                
-            // }
-            // socket.emit("send", sendData);
+            // console.log(vm.loginUser)
+            sendData = {
+                msg: message,
+                loginUser: vm.loginUser,
+                key: vm.roomKey
+            }
+            socket.emit("send", sendData);
         };
 
         $('#addFriendBtn').click(() => {
