@@ -12,7 +12,8 @@ function checkUserAuth(req, res, next) {
 
 router.use(checkUserAuth)
 
-router.get('/getLoginUser', chatController.getLoginUser)
+router.get('/getChatRecord', chatController.getChatRecord)
+router.get('/getLoginUserAndFriendList', chatController.getLoginUserAndFriendList)
 router.post('/addFriend', chatController.addFriend)
 
 router.get('/', chatController.index)

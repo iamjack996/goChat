@@ -29,32 +29,28 @@
     <div id="contacts">
         <ul>
             <!-- Users Chat List -->
-            <% if(friendList) { %>
-                <% Object.values(friendList).map(friend => { %>
-                <li class="contact">
-                    <div class="wrap">
-                        <!-- <span class="contact-status busy"></span> -->
-                        <!-- <img src="http://emilcarlsson.se/assets/harveyspecter.png" alt="" /> -->
-                        <a href="/chat/<%= friend.roomKey %>">
-                            <div class="meta">
-                                <p class="name"><%= friend.name %></p>
-                                <p class="preview">最後聊天內容.....</p>
-                            </div>
-                        </a>
-                    </div>
-                </li>
-                <% }) %>
-            <% } %>
-            <!-- <li class="contact">
+
+            <li class="contact" v-for="(row, index) in friendList" :class="chating(index)">
                 <div class="wrap">
-                    <span class="contact-status away"></span>
-                    <img src="http://emilcarlsson.se/assets/rachelzane.png" alt="" />
-                    <div class="meta">
-                        <p class="name">Rachel Zane</p>
-                        <p class="preview">I was thinking that we could have chicken tonight, sounds good?</p>
-                    </div>
+                    <a :href="'/chat/'+ row.roomKey">
+                        <div class="meta">
+                            <p class="name">{{ row.name }}</p>
+                            <p class="preview">最後聊天內容.....</p>
+                        </div>
+                    </a>
+                </div>
+            </li>
+            <!-- <li class="contact" v-for="(row, index) in friendList">
+                <div class="wrap">
+                    <a href="/chat/ friend.roomKey ">
+                        <div class="meta">
+                            <p class="name"> friend.name </p>
+                            <p class="preview">最後聊天內容.....</p>
+                        </div>
+                    </a>
                 </div>
             </li> -->
+            
         </ul>
     </div>
     <div id="bottom-bar">

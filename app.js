@@ -27,6 +27,7 @@ app.use(session({
     // store: new MemoryStore()
 }))
 
+// Session 宣告(全域)
 app.use(function (req, res, next) {
     res.locals.loginUser = req.session.loginUser
     res.locals.success = req.flash('success').toString()
@@ -35,6 +36,8 @@ app.use(function (req, res, next) {
 })
 
 // Route
+const authController = require('./controllers/auth.controller')
+app.get('/', authController.auth)
 const router = require('./routes/main')
 router(app)
 
@@ -75,8 +78,22 @@ chat.on('connection', function (socket) {
         consola.success(sendData)
         socket.to(sendData.key).emit("getMsg", sendData)
 
-
-        
+        ChatRoom
+            .orderByChild("key")
+            .equalTo(sendData.key)
+            .limitToFirst(1)
+            .once('value', async snapshot => {
+                let id = Object.keys(snapshot.val())[0]
+                await ChatRoom
+                    .child(id)
+                    .child("/msg")
+                    .push({
+                        content: sendData.msg,
+                        name: sendData.loginUser.name,
+                        email: sendData.loginUser.email,
+                        created_at: sendData.time
+                    })
+            })
     })
 
 
