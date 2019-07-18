@@ -993,6 +993,10 @@
                         console.log(vm.msgRecord)
                     }
                 })
+
+                setTimeout(() => {
+                    $(".messages").animate({ scrollTop: $(document).height() }, "fast")
+                }, 100)
             }
 
             if ( vm.roomKey ) {

@@ -21,21 +21,23 @@ exports.index = function (req, res) {
             snapshot.forEach(async loginUser => {
                 // console.log(loginUser.child('friendList').val())
                 let friendList = loginUser.child('friendList').val()
-                // Object.values(friendList).map(friend => {
-                //     ChatRoom
-                //         .orderByChild("key")
-                //         .equalTo(friend.roomKey)
-                //         .limitToFirst(1)
-                //         .once('value', snapshot => {
-                //             snapshot.forEach(room => {
-                //                 consola.success(room.val())
-                //             })
-                //         })
-
-                //     console.log(friend)
-                // })
+                let rooms = []
                 friendList = await Object.values(friendList)
-                consola.success(friendList[0])
+                await friendList.map(friend => {
+                    ChatRoom
+                        .orderByChild("key")
+                        .equalTo(friend.roomKey)
+                        .limitToFirst(1)
+                        .once('value', snapshot => {
+                            let id = Object.keys(snapshot.val())[0]
+                            rooms.push(id)
+                            console.log(rooms)
+                        })
+                    // console.log(friend)
+                })
+                console.log(rooms)
+
+                // console.log(friendList)
                 res.render('chat/index', { friendInfo: '', roomKey: '' })
             })
         })
