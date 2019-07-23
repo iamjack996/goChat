@@ -18,27 +18,52 @@ exports.index = function (req, res) {
         .equalTo(loginUser.email)
         .limitToFirst(1)
         .once('value', snapshot => {
-            snapshot.forEach(async loginUser => {
+            snapshot.forEach(async loginUser => {       // 寫成功移到 getLoginUserAndFriendList
                 // console.log(loginUser.child('friendList').val())
-                let friendList = loginUser.child('friendList').val()
-                let rooms = []
-                friendList = await Object.values(friendList)
-                await friendList.map(friend => {
-                    ChatRoom
-                        .orderByChild("key")
-                        .equalTo(friend.roomKey)
-                        .limitToFirst(1)
-                        .once('value', snapshot => {
-                            let id = Object.keys(snapshot.val())[0]
-                            rooms.push(id)
-                            console.log(rooms)
+                async function wait() {
+                    return new Promise(async function (resolve, reject) {
+                        let friendList = loginUser.child('friendList').val()
+                        friendListNew = await Object.values(friendList)
+                        await friendListNew.map(async friend => {
+                            console.log(111)
+                            await ChatRoom
+                                .orderByChild("key")
+                                .equalTo(friend.roomKey)
+                                .limitToFirst(1)
+                                .once('value', async snapshot => {
+                                    console.log(222)
+                                    let id = Object.keys(snapshot.val())[0]
+                                    console.log(id)
+                                    await ChatRoom
+                                        .child(id)
+                                        .child('/msg')
+                                        .limitToLast(1)
+                                        .once('value', async snapshot => {
+                                            console.log(333)
+                                            snapshot.forEach(async friendMsg => {
+                                                // console.log(friendMsg.val().content)
+                                                console.log(444)
+                                                friend.msg = await friendMsg.val().content
+                                            })
+                                        })
+                                    await resolve(friend)
+                                })
                         })
-                    // console.log(friend)
-                })
-                console.log(rooms)
+                    })
+                }
 
-                // console.log(friendList)
-                res.render('chat/index', { friendInfo: '', roomKey: '' })
+                wait().then(() => {
+                    console.log(555)
+                    console.log(friendListNew)
+                    res.render('chat/index', { friendInfo: '', roomKey: '' })
+                })
+                // return new Promise(function (resolve, reject) {
+                //     setTimeout(() => {
+                //         resolve(val)
+                //     }, 1000)
+                // })
+
+
             })
         })
 }

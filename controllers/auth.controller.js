@@ -2,7 +2,12 @@ const express = require('express')
 const consola = require('consola')
 const bcrypt = require('bcrypt')
 const saltRounds = 10
-const app = express();
+const app = express()
+const Web3 = require('web3')
+
+const ethereumUri = "https://mainnet.infura.io/v3/355a5c47df7d4c2ba45a63fe6e271562";
+
+
 
 const DB = require('../models/DB_config')
 const Users = DB.ref('/User')
@@ -118,8 +123,16 @@ exports.login = function (req, res) {
         })
 };
 
-exports.test = function (req, res) {
-    res.render('test')
+exports.test = async function (req, res) {
+    var _web3 = new Web3.providers.HttpProvider(ethereumUri); // 引入web3
+    var web3 = new Web3(_web3);
+
+    var gasPrice = await web3.eth.getGasPrice()
+    // 1000000000~5000000000 (3~5Gwei)
+
+    var hexGasPrice = await web3.utils.numberToHex(parseInt(parseInt(gasPrice)))
+    res.send(gasPrice + '/' + hexGasPrice)
+    // res.render('test')
 };
 
 
