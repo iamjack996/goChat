@@ -12,7 +12,7 @@ const ChatRoom = DB.ref('/ChatRoom')
 
 exports.index = function (req, res) {
     const loginUser = req.session.loginUser
-    console.log(loginUser)
+    // console.log(loginUser)
     res.render('chat/index', { friendInfo: '', roomKey: '' })
 }
 
@@ -69,20 +69,6 @@ exports.chat = async function (req, res) {
 exports.getLoginUserAndFriendList = function (req, res) {
     const loginUser = req.session.loginUser
 
-    // Users
-    //     .orderByChild("email")
-    //     .equalTo(loginUser.email)
-    //     .limitToFirst(1)
-    //     .once('value', snapshot => {
-    //         snapshot.forEach(async loginUser => {
-    //             let friendList = loginUser.child('friendList').val()
-
-    //             friendList = await Object.values(friendList)
-    //             res.json({ loginUser, friendList })
-    //         })
-    //     })
-
-
     Users
         .orderByChild("email")
         .equalTo(loginUser.email)
@@ -101,21 +87,21 @@ exports.getLoginUserAndFriendList = function (req, res) {
                         .limitToFirst(1)
                         .once('value', async snapshot => {
                             // console.log(222)
-                            let id = Object.keys(snapshot.val())[0]
-                            // console.log(id)
-
-                            ChatRoom
-                                .child(id)
-                                .child('/msg')
-                                .limitToLast(1)
-                                .once('value', snapshot => {
-                                    console.log(333)
-                                    snapshot.forEach(friendMsg => {
-                                        // console.log(friendMsg.val().content)
-                                        console.log(444)
-                                        friend.msg = friendMsg.val().content
+                            if (snapshot.val()) {
+                                let id = Object.keys(snapshot.val())[0]
+                                ChatRoom
+                                    .child(id)
+                                    .child('/msg')
+                                    .limitToLast(1)
+                                    .once('value', snapshot => {
+                                        console.log(333)
+                                        snapshot.forEach(friendMsg => {
+                                            // console.log(friendMsg.val().content)
+                                            console.log(444)
+                                            friend.msg = friendMsg.val().content
+                                        })
                                     })
-                                })
+                            }
                         })
                 })
 
@@ -151,7 +137,7 @@ exports.getChatRecord = function (req, res) {
 }
 
 
-exports.addFriend = function (req, res) {
+exports.addFriend = async function (req, res) {
     let { email } = req.body
     const roomKey = uuidv1()
     // console.log(req.body)
@@ -161,7 +147,6 @@ exports.addFriend = function (req, res) {
         req.flash('error', '不可以加自己為好友')
         return res.redirect('back')
     }
-    let test = 0
 
     try {
         Users
@@ -175,8 +160,7 @@ exports.addFriend = function (req, res) {
                         userInfo = child.val()
                         userInfo.userKey = await child.key
                     })
-                    consola.success(userInfo)
-
+                    // consola.success(userInfo)
                     await Users.child(loginUser.userKey)
                         .child('/friendList')
                         .orderByChild("email")
@@ -193,7 +177,6 @@ exports.addFriend = function (req, res) {
                                         roomKey,
                                         kind: 'A'
                                     })
-
                                 await Users.child(userInfo.userKey)
                                     .child('/friendList')
                                     .push({
@@ -202,40 +185,29 @@ exports.addFriend = function (req, res) {
                                         roomKey,
                                         kind: 'B'
                                     })
-                                test = 2
                                 req.flash('success', '新增好友成功')
                             } else {
                                 console.log('此帳號已在好友名單')
-                                test = 3
                                 req.flash('error', '此帳號已在好友名單')
                             }
                         })
-                    console.log('test => ' + test)
-                    return res.redirect('back')
                 } else {
                     console.log('無此好友帳號')
-                    test = 1
                     req.flash('error', '無此好友帳號')
-
-                    console.log('test => ' + test)
-                    return res.redirect('back')
                 }
             })
 
+        const sleep = function (time) {
+            return new Promise(function (resolve, reject) {
+                setTimeout(function () {
+                    return res.redirect('back')
+                }, time)
+            })
+        }
+        await sleep(800)
     } catch (e) {
         console.log(e)
     }
-    // function echo() {
-    //     return new Promise(resolve => {
-    //         setTimeout(() => {
-    //             a += 49
-    //             resolve(a)
-    //         }, 3000)
-    //     });
-    // }
-    // echo().then(function (data) {
-    //     console.log(data)
-    // })
 
 }
 

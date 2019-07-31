@@ -30,12 +30,12 @@
         <ul>
             <!-- Users Chat List -->
 
-            <li class="contact" v-for="(row, index) in friendList" :class="chating(index)">
+            <li class="contact" v-for="(row, index) in friendList" :class="chating(index)" >
                 <div class="wrap">
                     <a :href="'/chat/'+ row.roomKey">
                         <div class="meta">
                             <p class="name">{{ row.name }}</p>
-                            <p class="preview">{{ row.msg }}</p>
+                            <p class="preview" :newMsg="row.email">{{ row.msg }}</p>
                         </div>
                     </a>
                 </div>

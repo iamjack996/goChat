@@ -62,14 +62,14 @@ chat.on('connection', function (socket) {
         let { email } = user
         // console.log(email)
         socket.join(email, () => {
-            // console.log(socket.rooms)
+            console.log(socket.rooms)
         })
-        // console.log(email + ' >>> join self.')
+        console.log(email + ' >>> join self.')
     })
 
-    socket.on('join-chat', function (email) {
-        // console.log(' >>> join to :' + email)
-        socket.join(email, () => {
+    socket.on('join-chat', function (roomKey) {
+        console.log(' >>> join to :' + roomKey)
+        socket.join(roomKey, () => {
             // console.log(socket.rooms)
         })
     })
@@ -77,6 +77,7 @@ chat.on('connection', function (socket) {
     socket.on('send', function (sendData) {
         consola.success(sendData)
         socket.to(sendData.key).emit("getMsg", sendData)
+        socket.to(sendData.to).emit("newMsg", sendData)
 
         ChatRoom
             .orderByChild("key")
@@ -89,8 +90,8 @@ chat.on('connection', function (socket) {
                     .child("/msg")
                     .push({
                         content: sendData.msg,
-                        name: sendData.loginUser.name,
-                        email: sendData.loginUser.email,
+                        name: sendData.from.name,
+                        email: sendData.from.email,
                         created_at: sendData.time
                     })
             })

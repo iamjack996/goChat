@@ -945,21 +945,21 @@
             },
             methods: {
                 whoMsg: function(index) {                    
-                    if(vm.msgRecord[index].email == vm.loginUser.email) {
+                    if (vm.msgRecord[index].email == vm.loginUser.email) {
                         return 'sent'
                     }else {
                         return 'replies'
                     }
                 },
                 whoMsg2: function(index) {
-                    if(vm.msgRecord[index].email == vm.loginUser.email) {
+                    if (vm.msgRecord[index].email == vm.loginUser.email) {
                         return 'host'
                     }else {
                         return 'guest'
                     }
                 },
                 chating: function(index) {
-                    if(vm.friendList[index].roomKey == vm.roomKey) {
+                    if (vm.friendList[index].roomKey == vm.roomKey) {
                         return 'active'
                     }
                 }
@@ -975,13 +975,17 @@
                 success: data => {
                     vm.loginUser = data.loginUser
                     vm.friendList = data.friendList
-                    console.log(vm.loginUser)
-                    socket.on("connect", () => {
-                        console.log('連線中')
-                        socket.emit("join-self", vm.loginUser)
-                    })
                 }
             })
+
+            socket.on("connect", () => {
+                setTimeout(function () {
+                    console.log(vm.loginUser)
+                    console.log('連線中')
+                    socket.emit("join-self", vm.loginUser)
+                }, 2000)
+            })
+
             if ( vm.roomKey ) {
                 $.ajax({
                     url: '/chat/getChatRecord',
@@ -1006,10 +1010,18 @@
             socket.on("getMsg", (chat) => {
                 console.log(chat)
                 
-                $('<li class="replies"><span class="guest">' + chat.loginUser.name + '<br>' + chat.time + '</span><p>' + chat.msg + '</p></li>').appendTo($('.messages ul'));
+                $('<li class="replies"><span class="guest">' + chat.from.name + '<br>' + chat.time + '</span><p>' + chat.msg + '</p></li>').appendTo($('.messages ul'));
                 $('.message-input input').val(null);
                 $('.contact.active .preview').html('<span> : </span>' + chat.msg);
                 $(".messages").animate({ scrollTop: $(document).height() }, "fast");
+            })
+
+            socket.on("newMsg", (chat) => {
+                console.log(chat)
+                // $('<li class="replies"><span class="guest">' + chat.loginUser.name + '<br>' + chat.time + '</span><p>' + chat.msg + '</p></li>').appendTo($('.messages ul'));
+                // $('.contact.'+ chat.from.email +' .preview').html('<span>*NEW* : </span>' + '<b>' + chat.msg + '</b>');
+                console.log($('.preview[newMsg="'+ chat.from.email +'"]'))
+                $('.preview[newMsg="'+ chat.from.email +'"]').html('<span>*NEW* : </span>' + '<b>' + chat.msg + '</b>')
             })
             
         })
@@ -1037,9 +1049,10 @@
 
             sendData = {
                 msg: message,
-                loginUser: vm.loginUser,
+                from: vm.loginUser,
                 key: vm.roomKey,
-                time: now
+                time: now,
+                to: vm.friendMail
             }
             socket.emit("send", sendData);
         };
