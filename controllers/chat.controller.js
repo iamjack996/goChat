@@ -12,60 +12,8 @@ const ChatRoom = DB.ref('/ChatRoom')
 
 exports.index = function (req, res) {
     const loginUser = req.session.loginUser
-
-    Users
-        .orderByChild("email")
-        .equalTo(loginUser.email)
-        .limitToFirst(1)
-        .once('value', snapshot => {
-            snapshot.forEach(async loginUser => {       // 寫成功移到 getLoginUserAndFriendList
-                // console.log(loginUser.child('friendList').val())
-                async function wait() {
-                    return new Promise(async function (resolve, reject) {
-                        let friendList = loginUser.child('friendList').val()
-                        friendListNew = await Object.values(friendList)
-                        await friendListNew.map(async friend => {
-                            console.log(111)
-                            await ChatRoom
-                                .orderByChild("key")
-                                .equalTo(friend.roomKey)
-                                .limitToFirst(1)
-                                .once('value', async snapshot => {
-                                    console.log(222)
-                                    let id = Object.keys(snapshot.val())[0]
-                                    console.log(id)
-                                    await ChatRoom
-                                        .child(id)
-                                        .child('/msg')
-                                        .limitToLast(1)
-                                        .once('value', async snapshot => {
-                                            console.log(333)
-                                            snapshot.forEach(async friendMsg => {
-                                                // console.log(friendMsg.val().content)
-                                                console.log(444)
-                                                friend.msg = await friendMsg.val().content
-                                            })
-                                        })
-                                    await resolve(friend)
-                                })
-                        })
-                    })
-                }
-
-                wait().then(() => {
-                    console.log(555)
-                    console.log(friendListNew)
-                    res.render('chat/index', { friendInfo: '', roomKey: '' })
-                })
-                // return new Promise(function (resolve, reject) {
-                //     setTimeout(() => {
-                //         resolve(val)
-                //     }, 1000)
-                // })
-
-
-            })
-        })
+    console.log(loginUser)
+    res.render('chat/index', { friendInfo: '', roomKey: '' })
 }
 
 exports.chat = async function (req, res) {
@@ -116,106 +64,72 @@ exports.chat = async function (req, res) {
                 return res.render('chat/index', { friendInfo, roomKey })
             })
         })
-
-
-
-
-    ///////////
-
-    // const friendMail = req.params.id
-    // let haveRoom = false
-
-    // ChatRoom
-    //     .orderByChild("memberA")
-    //     .equalTo(loginUser.email)
-    //     .once('value', async snapshot => {
-    //         // consola.success(snapshot.val())
-    //         if (!snapshot.val()) {
-    //             await ChatRoom
-    //                 .orderByChild("memberA")
-    //                 .equalTo(friendMail)
-    //                 .once('value', async snapshot => {
-    //                     await snapshot.forEach(room => {
-    //                         if (room.val().memberB == loginUser.email) {
-    //                             haveRoom = true
-    //                             roomKey = room.val().key
-    //                         }
-    //                     })
-    //                 })
-    //         } else {
-    //             await snapshot.forEach(room => {
-    //                 if (room.val().memberB == friendMail) {
-    //                     haveRoom = true
-    //                     roomKey = room.val().key
-    //                 }
-    //             })
-    //         }
-    //     })
-
-    // if (!haveRoom) {
-    //     roomKey = uuidv1()
-    //     console.log(roomKey)
-    //     await ChatRoom.push({
-    //         key: roomKey,
-    //         memberA: loginUser.email,
-    //         memberB: friendMail,
-    //         msg: ''
-    //     })
-
-    //     await Users
-    //         .orderByChild("email")
-    //         .equalTo(loginUser.email)
-    //         .limitToFirst(1)
-    //         .once('value', async snapshot => {
-    //             let id = Object.keys(snapshot.val())[0]
-    //             await Users.child(id).child('/friendList')
-    //                 .orderByChild('email')
-    //                 .equalTo(friendMail)
-    //                 .limitToFirst(1)
-    //                 .once('value', snapshot => {
-    //                     let fid = Object.keys(snapshot.val())[0]
-    //                     Users.child(id).child('/friendList').child(fid).update({
-    //                         roomKey,
-    //                         kind: 'A'
-    //                     })
-    //                 })
-    //         })
-
-    //     await Users
-    //         .orderByChild("email")
-    //         .equalTo(friendMail)
-    //         .limitToFirst(1)
-    //         .once('value', async snapshot => {
-    //             let id = Object.keys(snapshot.val())[0]
-    //             await Users.child(id).child('/friendList')
-    //                 .orderByChild('email')
-    //                 .equalTo(loginUser.email)
-    //                 .limitToFirst(1)
-    //                 .once('value', snapshot => {
-    //                     let fid = Object.keys(snapshot.val())[0]
-    //                     Users.child(id).child('/friendList').child(fid).update({
-    //                         roomKey,
-    //                         kind: 'B'
-    //                     })
-    //                 })
-    //         })
-    // }
-    // console.log('haveRoom => ' + haveRoom)
 }
 
 exports.getLoginUserAndFriendList = function (req, res) {
     const loginUser = req.session.loginUser
+
+    // Users
+    //     .orderByChild("email")
+    //     .equalTo(loginUser.email)
+    //     .limitToFirst(1)
+    //     .once('value', snapshot => {
+    //         snapshot.forEach(async loginUser => {
+    //             let friendList = loginUser.child('friendList').val()
+
+    //             friendList = await Object.values(friendList)
+    //             res.json({ loginUser, friendList })
+    //         })
+    //     })
+
 
     Users
         .orderByChild("email")
         .equalTo(loginUser.email)
         .limitToFirst(1)
         .once('value', snapshot => {
-            snapshot.forEach(async loginUser => {
-                let friendList = loginUser.child('friendList').val()
-
+            snapshot.forEach(async loginUserData => {
+                let friendList = loginUserData.child('friendList').val()
                 friendList = await Object.values(friendList)
-                res.json({ loginUser, friendList })
+
+                friendList.map(async friend => {
+                    // console.log(111)
+
+                    ChatRoom
+                        .orderByChild("key")
+                        .equalTo(friend.roomKey)
+                        .limitToFirst(1)
+                        .once('value', async snapshot => {
+                            // console.log(222)
+                            let id = Object.keys(snapshot.val())[0]
+                            // console.log(id)
+
+                            ChatRoom
+                                .child(id)
+                                .child('/msg')
+                                .limitToLast(1)
+                                .once('value', snapshot => {
+                                    console.log(333)
+                                    snapshot.forEach(friendMsg => {
+                                        // console.log(friendMsg.val().content)
+                                        console.log(444)
+                                        friend.msg = friendMsg.val().content
+                                    })
+                                })
+                        })
+                })
+
+                var sleep = function (time) {
+                    return new Promise(function (resolve, reject) {
+                        setTimeout(function () {
+                            console.log(555)
+                            // console.log(loginUser)
+                            res.json({ loginUser, friendList })
+                            // res.render('chat/index', { friendInfo: '', roomKey: '' })
+                        }, time)
+                    })
+                }
+                await sleep(800)
             })
         })
 }

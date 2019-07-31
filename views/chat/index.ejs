@@ -851,7 +851,7 @@
         <div class="content">
             <div class="contact-profile">
                 <img src="http://emilcarlsson.se/assets/harveyspecter.png" alt="" />
-                <p>With '{{ friendMail }}' To Chat.</p>
+                <p>With <b v-if="friendMail">{{ friendMail }}</b><b v-else>Someone</b> To Chat.</p>
                 <div class="social-media">
                     <!-- <i class="fa fa-facebook" aria-hidden="true"></i> -->
                     <a href="./auth">Logout<i class="fa fa-twitter" aria-hidden="true"></i></a>
@@ -996,7 +996,7 @@
 
                 setTimeout(() => {
                     $(".messages").animate({ scrollTop: $(document).height() }, "fast")
-                }, 100)
+                }, 1000)
             }
 
             if ( vm.roomKey ) {
