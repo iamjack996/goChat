@@ -94,10 +94,10 @@ exports.getLoginUserAndFriendList = function (req, res) {
                                     .child('/msg')
                                     .limitToLast(1)
                                     .once('value', snapshot => {
-                                        console.log(333)
+                                        // console.log(333)
                                         snapshot.forEach(friendMsg => {
                                             // console.log(friendMsg.val().content)
-                                            console.log(444)
+                                            // console.log(444)
                                             friend.msg = friendMsg.val().content
                                         })
                                     })
@@ -108,7 +108,7 @@ exports.getLoginUserAndFriendList = function (req, res) {
                 var sleep = function (time) {
                     return new Promise(function (resolve, reject) {
                         setTimeout(function () {
-                            console.log(555)
+                            // console.log(555)
                             // console.log(loginUser)
                             res.json({ loginUser, friendList })
                             // res.render('chat/index', { friendInfo: '', roomKey: '' })
@@ -122,17 +122,31 @@ exports.getLoginUserAndFriendList = function (req, res) {
 
 exports.getChatRecord = function (req, res) {
     const roomKey = req.query.key
+    let limit = req.query.limit
+    if(!limit) limit = 20
     // console.log(req.query)
     ChatRoom
         .orderByChild("key")
         .equalTo(roomKey)
         .once('value', snapshot => {
-            // consola.success(snapshot.val())
-            snapshot.forEach(async room => {
-                msgRecord = await Object.values(room.val().msg)
-                // console.log(room.val())
-                await res.json({ msgRecord })
-            })
+            let id = Object.keys(snapshot.val())[0]
+            // consola.success(id)
+
+            ChatRoom
+                .child(id)
+                .child('/msg')
+                .limitToLast(parseInt(limit))
+                .once('value', snapshot => {
+                    // console.log(snapshot.val())
+                    msgRecord = snapshot.val()
+                    res.json({ msgRecord })
+                })
+
+            // snapshot.forEach(async room => {
+            //     msgRecord = await Object.values(room.val().msg)
+            //     // console.log(msgRecord)
+            //     await res.json({ msgRecord })
+            // })
         })
 }
 

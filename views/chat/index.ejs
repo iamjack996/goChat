@@ -871,6 +871,7 @@
                     </li>
                 </ul> -->
                 <ul id="content">
+                    <button @click="msgMore()">查看更多..</button>
                     <li v-for="(row, index) in msgRecord" :class="whoMsg(index)">
                         <span :class="whoMsg2(index)">{{ row.name }}<br>{{ row.created_at }}</span>
                         <p>{{ row.content }}</p>
@@ -941,7 +942,8 @@
                 friendMail: "<%= friendInfo.email %>",
                 roomKey: "<%= roomKey %>",
                 msgRecord: null,
-                friendList: null
+                friendList: null,
+                limitMsg: 20
             },
             methods: {
                 whoMsg: function(index) {                    
@@ -962,12 +964,27 @@
                     if (vm.friendList[index].roomKey == vm.roomKey) {
                         return 'active'
                     }
+                },
+                msgMore: function(){
+                    vm.limitMsg +=40
+                    console.log(vm.limitMsg)
+                    $.ajax({
+                        url: '/chat/getChatRecord',
+                        type: 'get',
+                        data: { key: vm.roomKey, limit: vm.limitMsg },
+                        dataType: 'json',
+                        success: data => {
+                            vm.msgRecord = data.msgRecord
+                            console.log(vm.msgRecord)
+                        }
+                    })
                 }
             }
         })
         const socket = io('/chat')
 
         $(document).ready(function () {
+
             $.ajax({
                 url: '/chat/getLoginUserAndFriendList',
                 type: 'get',
@@ -999,7 +1016,7 @@
                 })
 
                 setTimeout(() => {
-                    $(".messages").animate({ scrollTop: $(document).height() }, "fast")
+                    $(".messages").animate({ scrollTop: $(document).height()+9999 }, "fast")
                 }, 1000)
             }
 
@@ -1013,17 +1030,17 @@
                 $('<li class="replies"><span class="guest">' + chat.from.name + '<br>' + chat.time + '</span><p>' + chat.msg + '</p></li>').appendTo($('.messages ul'));
                 $('.message-input input').val(null);
                 $('.contact.active .preview').html('<span> : </span>' + chat.msg);
-                $(".messages").animate({ scrollTop: $(document).height() }, "fast");
+                $(".messages").animate({ scrollTop: $(document).height()+9999 }, "fast");
             })
 
             socket.on("newMsg", (chat) => {
-                console.log(chat)
-                // $('<li class="replies"><span class="guest">' + chat.loginUser.name + '<br>' + chat.time + '</span><p>' + chat.msg + '</p></li>').appendTo($('.messages ul'));
-                // $('.contact.'+ chat.from.email +' .preview').html('<span>*NEW* : </span>' + '<b>' + chat.msg + '</b>');
-                console.log($('.preview[newMsg="'+ chat.from.email +'"]'))
-                $('.preview[newMsg="'+ chat.from.email +'"]').html('<span>*NEW* : </span>' + '<b>' + chat.msg + '</b>')
+                if (vm.friendMail != chat.from.email){
+                    console.log(chat)
+                    $('.preview[newMsg="'+ chat.from.email +'"]').html('<span style="color:red"><b>*NEW* : ' + chat.msg + '</b></span>')
+                }
             })
             
+
         })
 
         $('.submit').click(function () {
@@ -1045,7 +1062,7 @@
             $('<li class="sent"><span class="host">' + vm.loginUser.name + '<br>' + now + '</span><p>' + message + '</p></li>').appendTo($('.messages ul'));
             $('.message-input input').val(null);
             $('.contact.active .preview').html('<span>You: </span>' + message);
-            $(".messages").animate({ scrollTop: $(document).height() }, "fast");
+            $(".messages").animate({ scrollTop: $(document).height()+9999 }, "fast");
 
             sendData = {
                 msg: message,
